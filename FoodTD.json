@@ -1,0 +1,119 @@
+{
+    "taskDefinition": {
+        "taskDefinitionArn": "arn:aws:ecs:us-east-1:897912461045:task-definition/FoodTD:1",
+        "containerDefinitions": [
+            {
+                "name": "foodapi",
+                "image": "public.ecr.aws/b9b6c8v5/foodapi:latest",
+                "cpu": 0,
+                "portMappings": [
+                    {
+                        "containerPort": 80,
+                        "hostPort": 80,
+                        "protocol": "tcp",
+                        "name": "foodapi-80-tcp",
+                        "appProtocol": "http"
+                    },
+                    {
+                        "containerPort": 3000,
+                        "hostPort": 3000,
+                        "protocol": "tcp",
+                        "name": "foodapi-3000-tcp",
+                        "appProtocol": "http"
+                    }
+                ],
+                "essential": true,
+                "environment": [
+                    {
+                        "name": "POSTGRES_USER",
+                        "value": "iggy"
+                    },
+                    {
+                        "name": "POSTGRES_PASSWORD",
+                        "value": "22igee.org"
+                    },
+                    {
+                        "name": "RAILS_ENV",
+                        "value": "production"
+                    },
+                    {
+                        "name": "POSTGRES_DB",
+                        "value": "foodapidbproduction"
+                    },
+                    {
+                        "name": "RAILS_MASTER_KEY",
+                        "value": "11dfece9fdb7caee70bf744b3f8aee26"
+                    },
+                    {
+                        "name": "POSTGRES_HOST",
+                        "value": "foodapidbproduction.cfk8o4cguwq2.us-east-1.rds.amazonaws.com"
+                    }
+                ],
+                "environmentFiles": [],
+                "mountPoints": [],
+                "volumesFrom": [],
+                "ulimits": [],
+                "logConfiguration": {
+                    "logDriver": "awslogs",
+                    "options": {
+                        "awslogs-group": "/ecs/FoodTD",
+                        "awslogs-create-group": "true",
+                        "awslogs-region": "us-east-1",
+                        "awslogs-stream-prefix": "ecs"
+                    },
+                    "secretOptions": []
+                },
+                "systemControls": []
+            }
+        ],
+        "family": "FoodTD",
+        "executionRoleArn": "arn:aws:iam::897912461045:role/ecsTaskExecutionRole",
+        "networkMode": "awsvpc",
+        "revision": 1,
+        "volumes": [],
+        "status": "ACTIVE",
+        "requiresAttributes": [
+            {
+                "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+            },
+            {
+                "name": "ecs.capability.execution-role-awslogs"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+            },
+            {
+                "name": "ecs.capability.extensible-ephemeral-storage"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+            },
+            {
+                "name": "ecs.capability.task-eni"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+            }
+        ],
+        "placementConstraints": [],
+        "compatibilities": [
+            "EC2",
+            "FARGATE"
+        ],
+        "runtimePlatform": {
+            "cpuArchitecture": "X86_64",
+            "operatingSystemFamily": "LINUX"
+        },
+        "requiresCompatibilities": [
+            "FARGATE"
+        ],
+        "cpu": "1024",
+        "memory": "3072",
+        "registeredAt": "2024-07-10T19:28:31.390000+01:00",
+        "registeredBy": "arn:aws:iam::897912461045:root",
+        "ephemeralStorage": {
+            "sizeInGiB": 21
+        }
+    },
+    "tags": []
+}
