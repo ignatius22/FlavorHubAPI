@@ -85,8 +85,6 @@ test:
 #
 production:
   <<: *default
-  database: foodapidbproduction
-  # username: <%= ENV['POSTGRES_USER'] %>
-  # password: <%= ENV['POSTGRES_PASSWORD'] %>
-  username: iggy
-  password: 22igee.org
+  database: <%= ENV['POSTGRES_DB'] %>
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>

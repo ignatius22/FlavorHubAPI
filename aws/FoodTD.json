@@ -33,7 +33,7 @@
                 },
                 {
                     "name": "POSTGRES_DB",
-                    "value": "foodapidbproduction"
+                    "value": "foodapidb"
                 },
                 {
                     "name": "RAILS_MASTER_KEY",
@@ -41,7 +41,7 @@
                 },
                 {
                     "name": "POSTGRES_HOST",
-                    "value": "foodapidbproduction.cfk8o4cguwq2.us-east-1.rds.amazonaws.com"
+                    "value": "foodapidb.cfk8o4cguwq2.us-east-1.rds.amazonaws.com"
                 }
             ],
             "logConfiguration": {
