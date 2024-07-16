@@ -1,5 +1,7 @@
 class User < ApplicationRecord
     before_validation :set_default_role, on: :create
+    has_one :profile, dependent: :destroy
+
 
 
     validates :email, uniqueness: true

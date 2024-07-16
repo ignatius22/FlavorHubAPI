@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  # namespace :api do
+  #   namespace :v1 do
+  #     get 'sessions/create'
+  #   end
+  # end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -8,9 +13,15 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "welcome#index"
 
-  namespace :api, defaults: {format: :json} do
+  namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :users, only: %i[show create]
+      resources :users, only: %i[show create update destroy] do
+        member do
+          get :show_profile, to: 'users#show_profile'
+          patch :update_profile, to: 'users#update_profile'
+        end
+      end
+      resources :sessions, only: [:create]
     end
   end
 
