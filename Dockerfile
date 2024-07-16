@@ -17,6 +17,10 @@ ENV RAILS_ENV="production" \
 # Stage 2: Build Stage
 FROM base as build
 
+
+# Create gem cache directory and set permissions
+RUN mkdir -p /usr/local/bundle/ruby/3.3.0/cache && \
+    chmod 777 /usr/local/bundle/ruby/3.3.0/cache
 # Install packages needed to build gems and application dependencies
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
@@ -34,7 +38,7 @@ COPY Gemfile Gemfile.lock ./
 
 # Install application gems
 RUN bundle config --global frozen 1 && \
-    bundle install --jobs "$(nproc)" --retry 5 && \
+    bundle install --jobs "$(nproc)" --retry 2 && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 
 # Copy application code
@@ -43,7 +47,8 @@ COPY . .
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Stage 3: Final Stage for App Image
+# Clear gem cache
+
 FROM base
 
 # Install runtime dependencies

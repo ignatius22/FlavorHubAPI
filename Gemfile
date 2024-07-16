@@ -48,3 +48,6 @@ group :development do
   # gem "spring"
 end
 
+gem "jwt"
+
+gem "jsonapi-serializer"
