@@ -10,14 +10,18 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :users, only: %i[show create update destroy] do
+      resources :users, only: %i[index show create update destroy] do
+        collection do
+          get :active_users_with_orders
+        end
         member do
           get :show_profile, to: 'users#show_profile'
           patch :update_profile, to: 'users#update_profile'
         end
       end
       resources :sessions, only: [:create]
+      resources :password_resets, only: [:create, :edit, :update]
+      resources :products, only: [:index, :show, :create, :update, :destroy]
     end
   end
-
 end
