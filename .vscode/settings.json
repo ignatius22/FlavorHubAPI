@@ -8,6 +8,15 @@
             "name": "TUT_DEV",
             "database": "test_db",
             "username": "iggysani"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "FOOD_API",
+            "database": "foodapi_development",
+            "username": "iggysani"
         }
     ]
 }

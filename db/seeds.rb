@@ -69,7 +69,9 @@ products = [
     duration: 30,
     image: 'https://example.com/images/classic_cheeseburger.jpg',
     status: 'active',
-    visibility: 'visible'
+    visibility: 'visible',
+    calories: 700,
+    rating: 4.5
   },
   {
     title: 'Bacon Double Burger',
@@ -78,7 +80,9 @@ products = [
     duration: 30,
     image: 'https://example.com/images/bacon_double_burger.jpg',
     status: 'active',
-    visibility: 'visible'
+    visibility: 'visible',
+    calories: 950,
+    rating: 4.8
   },
   {
     title: 'Veggie Burger',
@@ -87,7 +91,9 @@ products = [
     duration: 25,
     image: 'https://example.com/images/veggie_burger.jpg',
     status: 'inactive',
-    visibility: 'hidden'
+    visibility: 'hidden',
+    calories: 600,
+    rating: 4.3
   },
   {
     title: 'Mushroom Swiss Burger',
@@ -95,7 +101,9 @@ products = [
     delivery_fee: 2.50,
     duration: 30,
     image: 'https://example.com/images/mushroom_swiss_burger.jpg',
-    visibility: 'visible'
+    visibility: 'visible',
+    calories: 800,
+    rating: 4.7
   }
 ]
 

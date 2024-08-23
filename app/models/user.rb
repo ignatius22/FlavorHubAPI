@@ -7,6 +7,7 @@ class User < ApplicationRecord
   has_one  :profile, dependent: :destroy
   has_many :orders, dependent: :destroy
   has_many :order_items, through: :orders
+  has_many :products
   has_many :products, through: :order_items
 
   # Validations
