@@ -60,3 +60,5 @@ gem 'sendgrid-ruby', '~> 6.7'
 
 gem 'pundit'
 gem "ransack", "~> 4.2"
+
+gem "dotenv-rails", "~> 3.1"

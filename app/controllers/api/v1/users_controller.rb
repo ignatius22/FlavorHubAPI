@@ -31,7 +31,6 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def update
-    @user = User.find(params[:id])
     service = UpdateUserService.new(current_user, @user, user_params)
     result = service.call
 
