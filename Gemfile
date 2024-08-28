@@ -51,3 +51,14 @@ end
 gem "jwt"
 
 gem "jsonapi-serializer"
+
+gem 'redis', '~> 5.2'
+
+gem 'sidekiq', '~> 7.3'
+
+gem 'sendgrid-ruby', '~> 6.7'
+
+gem 'pundit'
+gem "ransack", "~> 4.2"
+
+gem "dotenv-rails", "~> 3.1"
