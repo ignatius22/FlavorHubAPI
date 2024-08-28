@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   before_validation :set_default_role, on: :create
+  before_update :check_role_change
 
   ROLES = %w[user admin manager super_admin].freeze
   
@@ -9,7 +10,9 @@ class User < ApplicationRecord
   has_many :order_items, through: :orders
   has_many :products
   has_many :products, through: :order_items
-
+  
+  has_many :favorites, dependent: :destroy
+  has_many :favorite_products, through: :favorites, source: :product
   # Validations
   validates :email, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :username, uniqueness: true
@@ -42,65 +45,59 @@ class User < ApplicationRecord
   end
 
 # Fetches users who have placed an order within the last 30 days and includes their profiles
+# def self.recently_active_users
+#   sql = <<-SQL
+#     SELECT 
+#       users.id, 
+#       users.email, 
+#       users.username, 
+#       users.role,
+#       profiles.first_name
+#     FROM 
+#       users
+#     INNER JOIN 
+#       orders ON orders.user_id = users.id
+#     INNER JOIN 
+#       profiles ON profiles.user_id = users.id
+#     WHERE 
+#       orders.created_at >= NOW() - INTERVAL '30 days'
+#     GROUP BY 
+#       users.id, 
+#       users.email,
+#       users.username, 
+#       users.role,
+#       profiles.first_name
+#   SQL
+  
+#   results = ActiveRecord::Base.connection.select_all(sql).to_a
+
+#   results.map do |user_data|
+#     # Build a hash that includes the `id` field
+#     {
+#       id: user_data['id'],
+#       email: user_data['email'],
+#       username: user_data['username'],
+#       role: user_data['role'],
+#       profile: { first_name: user_data['first_name'] }
+#     }
+#   end
+# end
+
+
 def self.recently_active_users
-  sql = <<-SQL
-    SELECT 
-      users.id, 
-      users.username, 
-      users.role,
-      profiles.first_name
-    FROM 
-      users
-    INNER JOIN 
-      orders ON orders.user_id = users.id
-    INNER JOIN 
-      profiles ON profiles.user_id = users.id
-    WHERE 
-      orders.created_at >= NOW() - INTERVAL '30 days'
-    GROUP BY 
-      users.id, 
-      users.username, 
-      users.role,
-      profiles.first_name
-  SQL
-  ActiveRecord::Base.connection.select_all(sql).to_a
+  User.joins(:orders, :profile)
+      .where('orders.created_at >= ?', 30.days.ago)
+      .distinct
 end
 
-
-# Fetches users who have placed an order within the last 30 days, including their profiles and orders
 def self.recently_active_users_with_orders
-  sql = <<-SQL
-    SELECT 
-      users.id AS user_id,
-      users.username,
-      users.role,
-      profiles.first_name,
-      profiles.last_name,
-      profiles.bio,
-      profiles.avatar,
-      profiles.phone_number,
-      profiles.address,
-      orders.id AS order_id,
-      orders.total_price,
-      orders.status AS order_status,
-      orders.created_at AS order_date
-    FROM 
-      users
-    INNER JOIN 
-      orders ON orders.user_id = users.id
-    INNER JOIN 
-      profiles ON profiles.user_id = users.id
-    WHERE 
-      orders.created_at >= NOW() - INTERVAL '30 days'
-    GROUP BY 
-      users.id, 
-      profiles.id,
-      orders.id
-    ORDER BY 
-      orders.created_at DESC
-  SQL
-  ActiveRecord::Base.connection.select_all(sql).to_a
+  User.joins(:profile)
+      .joins(:orders)
+      .where('orders.created_at >= ?', 30.days.ago)
+      .select('users.*, profiles.first_name, profiles.last_name, profiles.bio, profiles.avatar, profiles.phone_number, profiles.address, orders.id AS order_id, orders.total_price, orders.status AS order_status, orders.created_at AS order_date')
+      .order('orders.created_at DESC')
 end
+
 
   # Role checking methods
   def admin?
@@ -120,6 +117,14 @@ end
   end
 
   private
+
+  def check_role_change
+    # Ensure this logic allows super_admins to change roles
+    if role_changed? && !current_user.super_admin?
+      errors.add(:role, "You are not allowed to change the role")
+      throw(:abort)
+    end
+  end
 
   def set_default_role
     self.role ||= "user"

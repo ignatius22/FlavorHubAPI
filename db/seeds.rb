@@ -60,7 +60,7 @@ Profile.find_or_create_by!(user: user4) do |profile|
   profile.address = '101 Maple St, Thistown, USA'
 end
 
-# Ensure products are created
+# Ensure products are created with user associations
 products = [
   {
     title: 'Classic Cheeseburger',
@@ -71,7 +71,8 @@ products = [
     status: 'active',
     visibility: 'visible',
     calories: 700,
-    rating: 4.5
+    rating: 4.5,
+    user_id: user1.id
   },
   {
     title: 'Bacon Double Burger',
@@ -82,7 +83,8 @@ products = [
     status: 'active',
     visibility: 'visible',
     calories: 950,
-    rating: 4.8
+    rating: 4.8,
+    user_id: user2.id
   },
   {
     title: 'Veggie Burger',
@@ -93,7 +95,8 @@ products = [
     status: 'inactive',
     visibility: 'hidden',
     calories: 600,
-    rating: 4.3
+    rating: 4.3,
+    user_id: user3.id
   },
   {
     title: 'Mushroom Swiss Burger',
@@ -103,7 +106,8 @@ products = [
     image: 'https://example.com/images/mushroom_swiss_burger.jpg',
     visibility: 'visible',
     calories: 800,
-    rating: 4.7
+    rating: 4.7,
+    user_id: user4.id
   }
 ]
 

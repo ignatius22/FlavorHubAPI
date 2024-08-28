@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_22_225439) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_26_142339) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "favorites", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "product_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_favorites_on_product_id"
+    t.index ["user_id", "product_id"], name: "index_favorites_on_user_id_and_product_id", unique: true
+    t.index ["user_id"], name: "index_favorites_on_user_id"
+  end
 
   create_table "order_items", force: :cascade do |t|
     t.bigint "order_id", null: false
@@ -57,6 +67,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_22_225439) do
     t.decimal "rating", precision: 3, scale: 2, default: "0.0"
     t.integer "calories", default: 0, null: false
     t.bigint "user_id"
+    t.boolean "favorite", default: false
     t.index ["user_id"], name: "index_products_on_user_id"
   end
 
@@ -84,6 +95,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_22_225439) do
     t.datetime "password_reset_sent_at"
   end
 
+  add_foreign_key "favorites", "products"
+  add_foreign_key "favorites", "users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"

@@ -7,7 +7,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "welcome#index"
-
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
       resources :users, only: %i[index show create update destroy] do
@@ -21,7 +20,14 @@ Rails.application.routes.draw do
       end
       resources :sessions, only: [:create]
       resources :password_resets, only: [:create, :edit, :update]
-      resources :products, only: [:index, :show, :create, :update, :destroy]
+      resources :products, only: [:index, :show, :create, :update, :destroy] do
+        collection do
+          get :favorites
+        end
+        member do
+          post :toggle_favorite
+        end
+      end
     end
-  end
+  end  
 end
