@@ -1,4 +1,4 @@
-class UpdateUserService
+class UpdateProductService
     Result = Struct.new(:success?, :user, :errors)
   
     def initialize(user, user_params)
@@ -17,5 +17,5 @@ class UpdateUserService
     private
   
     attr_reader :user, :user_params
-  end
+end
   
