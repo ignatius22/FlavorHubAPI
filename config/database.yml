@@ -85,6 +85,6 @@ test:
 #
 production:
   <<: *default
-  database: <%= ENV['PRODUCTION_DATABASE_URL'] %>
-  username: <%= ENV['DATABASE_USER'] %>
-  password: <%= ENV['DATABASE_PASSWORD'] %>
+  database: <%= ENV['POSTGRES_DB'] %>
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
