@@ -126,6 +126,16 @@ end
     end
   end
 
+    # This method can be called to mark the user as authenticated
+    def mark_as_authenticated
+      update(authenticated: true)
+    end
+  
+    # This method can be called to mark the user as not authenticated
+    def mark_as_not_authenticated
+      update(authenticated: false)
+    end
+
   def set_default_role
     self.role ||= "user"
   end

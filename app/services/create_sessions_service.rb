@@ -7,8 +7,17 @@ class CreateSessionsService < ApplicationService
   
     def call
       if @user&.authenticate(@password)
+        @user.update(authenticated: true) # Update authentication status
         token = JsonWebToken.encode(user_id: @user.id)
-        { success: true, token: token, username: @user.username }
+        { success: true, 
+          data:{
+            token: token, 
+            is_authenticate: @user.authenticated,
+            role: @user.role,
+            email: @user.email,
+            username: @user.username
+          }
+        }
       else
         { success: false, errors: ["Unauthorized"] }
       end

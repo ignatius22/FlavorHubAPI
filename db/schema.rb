@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_26_142339) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_29_153526) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -93,6 +93,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_26_142339) do
     t.datetime "updated_at", null: false
     t.string "password_reset_token"
     t.datetime "password_reset_sent_at"
+    t.boolean "authenticated", default: false, null: false
   end
 
   add_foreign_key "favorites", "products"

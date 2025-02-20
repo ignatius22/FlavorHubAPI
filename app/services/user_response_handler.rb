@@ -1,7 +1,7 @@
 module UserResponseHandler
   def handle_user_creation(result)
     if result[:success]
-      render json: { user: UserSerializer.new(result[:user]).serialized_json }, status: :created
+      render json: { user: UserSerializer.new(result[:user]).serializable_hash.to_json}, status: :created
     else
       render json: { errors: result[:errors] }, status: :unprocessable_entity
     end

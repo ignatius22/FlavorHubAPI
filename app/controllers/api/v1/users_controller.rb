@@ -2,17 +2,28 @@ class Api::V1::UsersController < ApplicationController
   include Authorization
 
   before_action :set_user, only: %i[update show destroy show_profile update_profile]
+  before_action :check_login, only: [:get_current_user]
+
 
   def index
+    @users = User.all
+    render json: UserSerializer.new(@users).serializable_hash.to_json
+  end
+  
+  # GET /current_user
+  def get_current_user
+    render json: { user: UserSerializer.new(current_user) }, status: :ok
+  end
+  
+  def recently_active_users
     begin
       @recently_active_users = User.recently_active_users
-      render json: UserSerializer.new(@recently_active_users).serializable_hash
+      render json: UserSerializer.new(@recently_active_users).serializable_hash.to_json
     rescue StandardError => e
       Rails.logger.error "Serialization error: #{e.message}"
       render json: { error: 'Internal server error' }, status: :internal_server_error
     end
   end
-  
 
   def active_users_with_orders
     @recently_active_users_with_orders = User.recently_active_users_with_orders
