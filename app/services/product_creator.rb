@@ -1,5 +1,5 @@
 # app/services/product_creator.rb
-class CreateProductService
+class ProductCreator
   # Using keyword arguments for Result struct for clarity
   Result = Struct.new(:success?, :product, :errors, keyword_init: true)
 

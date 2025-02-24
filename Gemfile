@@ -50,6 +50,8 @@ end
 
 gem "jwt"
 
+gem 'aasm'
+
 gem "jsonapi-serializer"
 
 gem 'redis', '~> 5.2'

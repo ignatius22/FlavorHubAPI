@@ -1,21 +1,24 @@
 class ProductPolicy < ApplicationPolicy
-  # NOTE: Up to Pundit v2.3.1, the inheritance was declared as
-  # `Scope < Scope` rather than `Scope < ApplicationPolicy::Scope`.
-  # In most cases the behavior will be identical, but if updating existing
-  # code, beware of possible changes to the ancestors:
-  # https://gist.github.com/Burgestrand/4b4bc22f31c8a95c425fc0e30d7ef1f5
   def create?
-    user.admin?  # Only admins can create products
+    Rails.logger.debug "User: #{user&.inspect}, Role: #{user&.role}"
+    user && (user.role == "admin" || user.role == "super_admin")
   end
 
   def update?
-    user.admin? || user.manager?  # For example, allow managers to update products too
+    create? # Same permissions as create
   end
-  
+
+  def destroy?
+    create? # Same permissions as create
+  end
+
   class Scope < ApplicationPolicy::Scope
-    # NOTE: Be explicit about which records you allow access to!
-    # def resolve
-    #   scope.all
-    # end
+    def resolve
+      if user.role == "admin" || user.role == "super_admin"
+        scope.all
+      else
+        scope.none # Non-admin users should not see any products
+      end
+    end
   end
 end

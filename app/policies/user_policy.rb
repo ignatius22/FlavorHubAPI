@@ -7,6 +7,14 @@ class UserPolicy < ApplicationPolicy
     user.super_admin? || user.admin? || !user.eql?(record)
   end
 
+  def favorites?
+    user.present?
+  end
+
+  def toggle_favorite?
+    user.present?
+  end
+  
   def destroy?
     user.super_admin? || (user.admin? && !user.eql?(record))
   end

@@ -20,9 +20,14 @@ end
 user4 = User.find_or_create_by!(email: 'dave@example.com') do |user|
   user.password = 'password123'
   user.username = 'dave'
-  user.role = 'moderator'
+  user.role = 'super_admin'
 end
 
+user4 = User.find_or_create_by!(email: 'austin@test.com') do |user|
+  user.password = 'password123'
+  user.username = 'austin'
+  user.role = 'super_admin'
+end
 # Ensure profiles are associated with users
 Profile.find_or_create_by!(user: user1) do |profile|
   profile.first_name = 'Alice'

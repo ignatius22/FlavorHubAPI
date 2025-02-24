@@ -1,105 +1,81 @@
+# app/models/user.rb
 class User < ApplicationRecord
-  before_validation :set_default_role, on: :create
-  before_update :check_role_change
+  # Constants
+  ROLES = %w[user admin manager super_admin moderator].freeze
+  DEFAULT_ROLE = 'user'.freeze
 
-  ROLES = %w[user admin manager super_admin].freeze
-  
   # Associations
-  has_one  :profile, dependent: :destroy
-  has_many :orders, dependent: :destroy
+  has_one :profile, dependent: :destroy, inverse_of: :user
+  has_many :orders, dependent: :destroy, inverse_of: :user
   has_many :order_items, through: :orders
-  has_many :products
-  has_many :products, through: :order_items
-  
-  has_many :favorites, dependent: :destroy
+  has_many :products, through: :order_items # Note: Duplicated has_many :products below is removed
+  has_many :favorites, dependent: :destroy, inverse_of: :user
   has_many :favorite_products, through: :favorites, source: :product
+
   # Validations
-  validates :email, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :username, uniqueness: true
+  validates :email, presence: true, uniqueness: { case_sensitive: false }, 
+                    format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :username, presence: true, uniqueness: { case_sensitive: false }
   validates :password_digest, presence: true
   validates :role, presence: true, inclusion: { in: ROLES }
 
-  # Secure password handling
+  # Secure Password
   has_secure_password
 
-  # Generates a unique password reset token and saves the timestamp
+  # Callbacks
+  before_validation :set_default_role, on: :create
+  before_update :restrict_role_change, if: :role_changed?
+
+  # Scopes
+  scope :recently_active_users, -> {
+    joins(:orders, :profile)
+      .where('orders.created_at >= ?', 30.days.ago)
+      .distinct
+  }
+
+  scope :recently_active_users_with_orders, -> {
+    joins(:profile)
+      .joins(:orders)
+      .where('orders.created_at >= ?', 30.days.ago)
+      .select('users.*, profiles.first_name, profiles.last_name, profiles.bio, profiles.avatar, 
+               profiles.phone_number, profiles.address, orders.id AS order_id, orders.total_price, 
+               orders.status AS order_status, orders.created_at AS order_date')
+      .order('orders.created_at DESC')
+  }
+
+  # Public Methods
   def generate_password_reset_token!
-    self.password_reset_token = SecureRandom.urlsafe_base64
-    self.password_reset_sent_at = Time.now.utc
-    save!
+    update!(
+      password_reset_token: SecureRandom.urlsafe_base64,
+      password_reset_sent_at: Time.current.utc
+    )
+  rescue ActiveRecord::RecordInvalid => e
+    logger.error "Failed to generate password reset token for User ##{id}: #{e.message}"
+    false
   end
 
-  # Checks if the password reset token is valid (less than 2 hours old)
   def password_token_valid?
-    self.password_reset_sent_at.present? && (self.password_reset_sent_at + 2.hours) > Time.now.utc
+    password_reset_sent_at.present? && (password_reset_sent_at + 2.hours) > Time.current.utc
   end
 
-  # Resets the password
   def reset_password(new_password)
     self.password_reset_token = nil
     self.password = new_password
     save!
   rescue ActiveRecord::RecordInvalid => e
-    errors.add(:base, "Password could not be reset: #{e.message}")
+    errors.add(:base, "Password reset failed: #{e.message}")
     false
   end
 
-# Fetches users who have placed an order within the last 30 days and includes their profiles
-# def self.recently_active_users
-#   sql = <<-SQL
-#     SELECT 
-#       users.id, 
-#       users.email, 
-#       users.username, 
-#       users.role,
-#       profiles.first_name
-#     FROM 
-#       users
-#     INNER JOIN 
-#       orders ON orders.user_id = users.id
-#     INNER JOIN 
-#       profiles ON profiles.user_id = users.id
-#     WHERE 
-#       orders.created_at >= NOW() - INTERVAL '30 days'
-#     GROUP BY 
-#       users.id, 
-#       users.email,
-#       users.username, 
-#       users.role,
-#       profiles.first_name
-#   SQL
-  
-#   results = ActiveRecord::Base.connection.select_all(sql).to_a
+  def mark_as_authenticated
+    update_column(:authenticated, true) # Skip validations/callbacks for performance
+  end
 
-#   results.map do |user_data|
-#     # Build a hash that includes the `id` field
-#     {
-#       id: user_data['id'],
-#       email: user_data['email'],
-#       username: user_data['username'],
-#       role: user_data['role'],
-#       profile: { first_name: user_data['first_name'] }
-#     }
-#   end
-# end
+  def mark_as_not_authenticated
+    update_column(:authenticated, false)
+  end
 
-
-def self.recently_active_users
-  User.joins(:orders, :profile)
-      .where('orders.created_at >= ?', 30.days.ago)
-      .distinct
-end
-
-def self.recently_active_users_with_orders
-  User.joins(:profile)
-      .joins(:orders)
-      .where('orders.created_at >= ?', 30.days.ago)
-      .select('users.*, profiles.first_name, profiles.last_name, profiles.bio, profiles.avatar, profiles.phone_number, profiles.address, orders.id AS order_id, orders.total_price, orders.status AS order_status, orders.created_at AS order_date')
-      .order('orders.created_at DESC')
-end
-
-
-  # Role checking methods
+  # Role Checking Methods
   def admin?
     role == 'admin'
   end
@@ -112,31 +88,29 @@ end
     role == 'super_admin'
   end
 
-  def can_update_role?(user)
-    super_admin? && !self.eql?(user)
+  def moderator?
+    role == 'moderator'
+  end
+
+  def user?
+    role == 'user'
+  end
+
+  # Role Management
+  def can_update_role?(target_user)
+    super_admin? && self != target_user # Prevent self-role change
   end
 
   private
 
-  def check_role_change
-    # Ensure this logic allows super_admins to change roles
-    if role_changed? && !current_user.super_admin?
-      errors.add(:role, "You are not allowed to change the role")
-      throw(:abort)
-    end
+  def set_default_role
+    self.role ||= DEFAULT_ROLE
   end
 
-    # This method can be called to mark the user as authenticated
-    def mark_as_authenticated
-      update(authenticated: true)
+  def restrict_role_change
+    unless can_update_role?(self)
+      errors.add(:role, "Only super_admins can change roles, and you cannot change your own role")
+      throw(:abort)
     end
-  
-    # This method can be called to mark the user as not authenticated
-    def mark_as_not_authenticated
-      update(authenticated: false)
-    end
-
-  def set_default_role
-    self.role ||= "user"
   end
 end

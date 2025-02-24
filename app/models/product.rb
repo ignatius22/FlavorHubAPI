@@ -33,7 +33,10 @@ class Product < ApplicationRecord
   def self.ransackable_attributes(auth_object = nil)
     %w[title price delivery_fee duration favorite calories created_at updated_at user_id visibility]
   end
-
+  
+  def self.ransackable_attributes(auth_object = nil)
+    super + %w[status]
+  end
   # Specify the associations that should be searchable
   def self.ransackable_associations(auth_object = nil)
     %w[favorited_by_users favorites product_extras user] # Add associations as needed
