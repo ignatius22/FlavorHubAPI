@@ -2,76 +2,86 @@
 module Api
     module V1
       class OrdersController < ApplicationController
-        before_action :check_login
-        before_action :set_order, only: [:show, :update, :destroy, :cancel, :ship]
-        before_action :authorize_order, only: [:index, :show, :create, :update, :destroy, :cancel, :ship]
+        before_action :check_login, only: [:create, :update, :destroy]
+        before_action :set_order, only: %i[show update destroy cancel ship]
+        before_action :authorize_request, except: :create
   
         def index
-          @orders = policy_scope(Order)
-          render_json(@orders, :ok)
+          @orders = policy_scope(Order).order(created_at: :desc).includes(:user, order_items: :order_item_extras)
+          render_success(@orders)
         end
   
         def show
-          render_json(@order, :ok)
+          render_success(@order)
         end
   
         def create
-          @order = Order.new(order_params.merge(user: current_user))
-          authorize @order
-          if @order.save
-            render_json(@order, :created)
+          service = Orders::CreateService.new(current_user, params)
+          @order = service.execute
+  
+          if @order
+            authorize @order
+            render_success(@order, :created)
           else
-            render_error(@order.errors, :unprocessable_entity)
+            render_error(service.errors, :unprocessable_entity)
           end
         end
   
         def update
-          if @order.update(order_params)
-            render_json(@order, :ok)
+          service = Orders::UpdateService.new(current_user, @order, params)
+          if service.execute
+            render_success(@order)
           else
-            render_error(@order.errors, :unprocessable_entity)
+            render_error(service.errors, :unprocessable_entity)
           end
         end
   
         def destroy
-          @order.destroy!
-          render json: { message: "Order destroyed successfully" }, status: :ok
+          service = Orders::DestroyService.new(current_user, @order)
+          if service.execute
+            render json: { message: "Order successfully deleted" }, status: :no_content
+          else
+            render_error(service.errors, :unprocessable_entity)
+          end
         end
   
         def cancel
-          if @order.update(status: 'cancelled')
-            render_json(@order, :ok)
-          else
-            render_error(@order.errors, :unprocessable_entity)
-          end
+          process_status_change('cancelled')
         end
   
         def ship
-          if @order.update(status: 'shipped')
-            SendOrderShippedJob.perform_async(@order.id) # Sidekiq job
-            render_json(@order, :ok)
-          else
-            render_error(@order.errors, :unprocessable_entity)
-          end
+          process_status_change('shipped')
         end
   
         private
   
         def set_order
-          @order = Order.find(params[:id])
+          @order = Order.includes(:user, order_items: :order_item_extras).find(params[:id])
+          authorize @order
+        rescue ActiveRecord::RecordNotFound
+          render_error("Order not found", :not_found)
         end
   
-        def order_params
-          params.require(:order).permit(:total_price, :status)
+        def render_success(resource, status = :ok)
+          render json: OrderSerializer.new(resource, include: [:user, "order_items.order_item_extras"]).serializable_hash, status: status
         end
   
-        def authorize_order
+        def authorize_request
           authorize(@order || Order)
         end
   
-        def render_json(resource, status)
-          render json: OrderSerializer.new(resource).serializable_hash.to_json, status: status
+        def render_error(messages, status)
+          render json: { errors: Array(messages) }, status: status
+        end
+  
+        def process_status_change(new_status)
+          service = Orders::StatusChangeService.new(current_user, @order, new_status)
+          if service.execute
+            render_success(@order)
+          else
+            render_error(service.errors, :unprocessable_entity)
+          end
         end
       end
     end
-  end
+end

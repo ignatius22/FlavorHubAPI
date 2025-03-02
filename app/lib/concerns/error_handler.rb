@@ -20,7 +20,7 @@ module ErrorHandler
   end
 
   def handle_server_error(exception)
-    Rails.logger.error "Server error: #{exception.message}\n#{exception.backtrace.join("\n")}"
+    Rails.logger.error "Server error: #{exception.message}"
     render json: { errors: "An unexpected error occurred" }, status: :internal_server_error
   end
 end

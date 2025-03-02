@@ -1,0 +1,1 @@
+/Users/ignatiussani/Library/Application Support/Code/User/globalStorage/github.copilot-chat/debugCommand/copilot-debug: line 3: /private/var/folders/m8/rdr71c4s2wj5ll9f3d3m9z5c0000gn/T/AppTranslocation/0E9EA716-E462-433C-8EF4-D9C45523ABED/d/Visual Studio Code.app/Contents/Frameworks/Code Helper (Plugin).app/Contents/MacOS/Code Helper (Plugin): No such file or directory

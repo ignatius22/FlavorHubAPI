@@ -8,8 +8,16 @@ class ProductPolicy < ApplicationPolicy
     create? # Same permissions as create
   end
 
-  def destroy?
+  def archive?
     create? # Same permissions as create
+  end
+
+  def unarchive?
+    admin_or_super_admin?
+  end
+
+  def delete_permanently?
+    user&.super_admin? # Only super_admins can permanently delete
   end
 
   class Scope < ApplicationPolicy::Scope

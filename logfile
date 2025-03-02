@@ -1,0 +1,40 @@
+2025-03-02 08:24:49.550 WAT [16547] LOG:  starting PostgreSQL 15.11 (Homebrew) on x86_64-apple-darwin23.6.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.6), 64-bit
+2025-03-02 08:24:49.552 WAT [16547] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-02 08:24:49.552 WAT [16547] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-02 08:24:49.553 WAT [16547] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2025-03-02 08:24:49.557 WAT [16550] LOG:  database system was shut down at 2025-03-02 08:23:45 WAT
+2025-03-02 08:24:49.561 WAT [16547] LOG:  database system is ready to accept connections
+2025-03-02 08:25:19.481 WAT [16568] FATAL:  database "foodapi_development" does not exist
+2025-03-02 08:25:53.356 WAT [16622] FATAL:  database "foodapi_development" does not exist
+2025-03-02 08:26:30.638 WAT [16644] FATAL:  database "foodapi_development" does not exist
+2025-03-02 08:29:49.561 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 08:31:30.100 WAT [16548] LOG:  checkpoint complete: wrote 1000 buffers (6.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=100.497 s, sync=0.039 s, total=100.539 s; sync files=357, longest=0.001 s, average=0.001 s; distance=4596 kB, estimate=4596 kB
+2025-03-02 14:34:52.939 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 14:34:53.655 WAT [16548] LOG:  checkpoint complete: wrote 8 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.712 s, sync=0.001 s, total=0.717 s; sync files=8, longest=0.001 s, average=0.001 s; distance=2 kB, estimate=4137 kB
+2025-03-02 14:41:24.430 WAT [16548] LOG:  checkpoint starting: immediate force wait
+2025-03-02 14:41:24.433 WAT [16548] LOG:  checkpoint complete: wrote 1 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.003 s; sync files=1, longest=0.001 s, average=0.001 s; distance=1 kB, estimate=3723 kB
+2025-03-02 14:46:24.432 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 14:48:05.217 WAT [16548] LOG:  checkpoint complete: wrote 998 buffers (6.1%); 1 WAL file(s) added, 0 removed, 0 recycled; write=100.752 s, sync=0.022 s, total=100.785 s; sync files=356, longest=0.001 s, average=0.001 s; distance=4596 kB, estimate=4596 kB
+2025-03-02 15:38:33.652 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 15:38:35.685 WAT [16548] LOG:  checkpoint complete: wrote 21 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.022 s, sync=0.005 s, total=2.034 s; sync files=16, longest=0.001 s, average=0.001 s; distance=5 kB, estimate=4137 kB
+2025-03-02 15:43:33.865 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 15:43:34.985 WAT [16548] LOG:  checkpoint complete: wrote 12 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.114 s, sync=0.004 s, total=1.121 s; sync files=12, longest=0.001 s, average=0.001 s; distance=5 kB, estimate=3724 kB
+2025-03-02 18:18:51.066 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 18:18:53.399 WAT [16548] LOG:  checkpoint complete: wrote 24 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.324 s, sync=0.005 s, total=2.333 s; sync files=20, longest=0.001 s, average=0.001 s; distance=8 kB, estimate=3353 kB
+2025-03-02 18:38:51.573 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 18:38:51.678 WAT [16548] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.101 s, sync=0.001 s, total=0.105 s; sync files=2, longest=0.001 s, average=0.001 s; distance=1 kB, estimate=3017 kB
+2025-03-02 21:25:23.091 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 21:25:23.200 WAT [16548] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.103 s, sync=0.001 s, total=0.110 s; sync files=2, longest=0.001 s, average=0.001 s; distance=1 kB, estimate=2716 kB
+2025-03-02 21:30:23.203 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 21:30:23.313 WAT [16548] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.104 s, sync=0.001 s, total=0.111 s; sync files=2, longest=0.001 s, average=0.001 s; distance=1 kB, estimate=2444 kB
+2025-03-02 22:35:23.481 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 22:35:23.594 WAT [16548] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.103 s, sync=0.001 s, total=0.113 s; sync files=2, longest=0.001 s, average=0.001 s; distance=2 kB, estimate=2200 kB
+2025-03-02 22:40:23.600 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 22:40:23.704 WAT [16548] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.102 s, sync=0.001 s, total=0.105 s; sync files=2, longest=0.001 s, average=0.001 s; distance=3 kB, estimate=1980 kB
+2025-03-02 22:43:03.633 WAT [29792] ERROR:  update or delete on table "products" violates foreign key constraint "fk_rails_f1a29ddd47" on table "order_items"
+2025-03-02 22:43:03.633 WAT [29792] DETAIL:  Key (id)=(1) is still referenced from table "order_items".
+2025-03-02 22:43:03.633 WAT [29792] STATEMENT:  DELETE FROM "products" WHERE "products"."id" = $1
+2025-03-02 22:45:23.699 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 22:45:24.113 WAT [16548] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.407 s, sync=0.002 s, total=0.415 s; sync files=5, longest=0.001 s, average=0.001 s; distance=6 kB, estimate=1783 kB
+2025-03-02 22:50:23.119 WAT [16548] LOG:  checkpoint starting: time
+2025-03-02 22:50:23.634 WAT [16548] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.507 s, sync=0.002 s, total=0.515 s; sync files=6, longest=0.001 s, average=0.001 s; distance=6 kB, estimate=1605 kB

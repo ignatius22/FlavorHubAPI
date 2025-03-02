@@ -1,4 +1,4 @@
-# Ensure the existence of users
+# Users - Unchanged
 user1 = User.find_or_create_by!(email: 'alice@example.com') do |user|
   user.password = 'password123'
   user.username = 'alice'
@@ -23,12 +23,13 @@ user4 = User.find_or_create_by!(email: 'dave@example.com') do |user|
   user.role = 'super_admin'
 end
 
-user4 = User.find_or_create_by!(email: 'austin@test.com') do |user|
+user5 = User.find_or_create_by!(email: 'austin@test.com') do |user|
   user.password = 'password123'
   user.username = 'austin'
   user.role = 'super_admin'
 end
-# Ensure profiles are associated with users
+
+# Profiles - Unchanged
 Profile.find_or_create_by!(user: user1) do |profile|
   profile.first_name = 'Alice'
   profile.last_name = 'Johnson'
@@ -65,62 +66,33 @@ Profile.find_or_create_by!(user: user4) do |profile|
   profile.address = '101 Maple St, Thistown, USA'
 end
 
-# Ensure products are created with user associations
+Profile.find_or_create_by!(user: user5) do |profile|
+  profile.first_name = 'Austin'
+  profile.last_name = 'Green'
+  profile.bio = 'A super admin overseeing system operations.'
+  profile.avatar = 'https://example.com/avatars/austin.jpg'
+  profile.phone_number = '555-3344'
+  profile.address = '202 Elm St, Newtown, USA'
+end
+
+# Products - Matches enum
 products = [
-  {
-    title: 'Classic Cheeseburger',
-    price: 8.99,
-    delivery_fee: 2.50,
-    duration: 30,
-    image: 'https://example.com/images/classic_cheeseburger.jpg',
-    status: 'active',
-    visibility: 'visible',
-    calories: 700,
-    rating: 4.5,
-    user_id: user1.id
-  },
-  {
-    title: 'Bacon Double Burger',
-    price: 10.99,
-    delivery_fee: 2.50,
-    duration: 30,
-    image: 'https://example.com/images/bacon_double_burger.jpg',
-    status: 'active',
-    visibility: 'visible',
-    calories: 950,
-    rating: 4.8,
-    user_id: user2.id
-  },
-  {
-    title: 'Veggie Burger',
-    price: 7.99,
-    delivery_fee: 2.50,
-    duration: 25,
-    image: 'https://example.com/images/veggie_burger.jpg',
-    status: 'inactive',
-    visibility: 'hidden',
-    calories: 600,
-    rating: 4.3,
-    user_id: user3.id
-  },
-  {
-    title: 'Mushroom Swiss Burger',
-    price: 10.49,
-    delivery_fee: 2.50,
-    duration: 30,
-    image: 'https://example.com/images/mushroom_swiss_burger.jpg',
-    visibility: 'visible',
-    calories: 800,
-    rating: 4.7,
-    user_id: user4.id
-  }
+  { title: 'Classic Cheeseburger', price: 8.99, delivery_fee: 2.50, duration: 30, image: 'https://example.com/images/classic_cheeseburger.jpg', status: 'active', visibility: 'visible', calories: 700, rating: 4.5, user_id: user1.id },
+  { title: 'Bacon Double Burger', price: 10.99, delivery_fee: 2.50, duration: 30, image: 'https://example.com/images/bacon_double_burger.jpg', status: 'active', visibility: 'visible', calories: 950, rating: 4.8, user_id: user2.id },
+  { title: 'Veggie Burger', price: 7.99, delivery_fee: 2.50, duration: 25, image: 'https://example.com/images/veggie_burger.jpg', status: 'inactive', visibility: 'hidden', calories: 600, rating: 4.3, user_id: user3.id },
+  { title: 'Mushroom Swiss Burger', price: 10.49, delivery_fee: 2.50, duration: 30, image: 'https://example.com/images/mushroom_swiss_burger.jpg', status: 'active', visibility: 'visible', calories: 800, rating: 4.7, user_id: user4.id }
 ]
 
 products.each do |product_attrs|
-  product = Product.find_or_create_by!(title: product_attrs[:title]) do |p|
+  puts "Seeding Product: #{product_attrs[:title]} with status: #{product_attrs[:status]}"
+  Product.find_or_create_by!(title: product_attrs[:title]) do |p|
     p.assign_attributes(product_attrs)
   end
+end
 
+# Product Extras - No status interference
+Product.all.each do |product|
+  puts "Seeding extras for Product: #{product.title} (status: #{product.status})"
   case product.title
   when 'Classic Cheeseburger'
     product.product_extras.find_or_create_by!(name: 'Ketchup', quantity: 1)
@@ -138,33 +110,46 @@ products.each do |product_attrs|
     product.product_extras.find_or_create_by!(name: 'Mushrooms', quantity: 2)
     product.product_extras.find_or_create_by!(name: 'Swiss Cheese', quantity: 2)
   end
+  puts "Product #{product.title} status after extras: #{product.status}"
 end
 
-# Ensure orders are created for the first and second users
-order1 = Order.find_or_create_by!(user: user1, total_price: 19.98, status: 'pending')
-order2 = Order.find_or_create_by!(user: user2, total_price: 59.98, status: 'shipped')
+# Orders - Debug and bypass callback if needed
+puts "Seeding Order 1 with status: pending"
+order1 = Order.new(user: user1, total_price: 19.98, status: :pending)
+puts "Order 1 pre-save status: #{order1.status}"
+order1.save!(validate: false)  # Bypass validation to test callback
+puts "Order 1 saved with status: #{order1.status}"
 
-# Ensure order items are created for the orders
-OrderItem.find_or_create_by!(order: order1, product: Product.find_by(title: 'Classic Cheeseburger')) do |item|
+puts "Seeding Order 2 with status: shipped"
+order2 = Order.new(user: user2, total_price: 23.48, status: :shipped)
+puts "Order 2 pre-save status: #{order2.status}"
+order2.save!(validate: false)
+puts "Order 2 saved with status: #{order2.status}"
+
+# Order Items - Unchanged
+puts "Seeding Order Items..."
+OrderItem.find_or_create_by!(order: order1, product: Product.find_by!(title: 'Classic Cheeseburger')) do |item|
   item.quantity = 1
-  item.price = Product.find_by(title: 'Classic Cheeseburger').price
+  item.price = item.product.price
   item.total = item.price * item.quantity
 end
 
-OrderItem.find_or_create_by!(order: order1, product: Product.find_by(title: 'Mushroom Swiss Burger')) do |item|
+OrderItem.find_or_create_by!(order: order1, product: Product.find_by!(title: 'Mushroom Swiss Burger')) do |item|
   item.quantity = 1
-  item.price = Product.find_by(title: 'Mushroom Swiss Burger').price
+  item.price = item.product.price
   item.total = item.price * item.quantity
 end
 
-OrderItem.find_or_create_by!(order: order2, product: Product.find_by(title: 'Bacon Double Burger')) do |item|
+OrderItem.find_or_create_by!(order: order2, product: Product.find_by!(title: 'Bacon Double Burger')) do |item|
   item.quantity = 1
-  item.price = Product.find_by(title: 'Bacon Double Burger').price
+  item.price = item.product.price
   item.total = item.price * item.quantity
 end
 
-OrderItem.find_or_create_by!(order: order2, product: Product.find_by(title: 'Veggie Burger')) do |item|
+OrderItem.find_or_create_by!(order: order2, product: Product.find_by!(title: 'Veggie Burger')) do |item|
   item.quantity = 1
-  item.price = Product.find_by(title: 'Veggie Burger').price
+  item.price = item.product.price
   item.total = item.price * item.quantity
 end
+
+OrderItem.find_by!(id: 7).order_item_extras.create!(product_extra: ProductExtra.find_by!(name: 'Ketchup'), quantity: 1)

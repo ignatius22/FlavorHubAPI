@@ -1,6 +1,7 @@
 class Product < ApplicationRecord
   belongs_to :user
   has_many :product_extras, dependent: :destroy
+  has_many :order_items, dependent: :destroy  # Add this if missing
   has_many :favorites, dependent: :destroy
   
   has_many :favorited_by_users, through: :favorites, source: :user

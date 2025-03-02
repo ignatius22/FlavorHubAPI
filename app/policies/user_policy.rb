@@ -1,32 +1,54 @@
+# app/policies/user_policy.rb
 class UserPolicy < ApplicationPolicy
-  def update?
-    user.super_admin? || (user.admin? && !user.eql?(record)) || !user.eql?(record)
+  def initialize(user, target_user)
+    @user = user
+    @target_user = target_user
+  end
+
+  def index?
+    @user.present?
   end
 
   def show?
-    user.super_admin? || user.admin? || !user.eql?(record)
+    @user.present? && (@user == @target_user || @user.admin? || @user.super_admin?)
+  end
+
+  def create?
+    @user.present?
+  end
+
+  def update?
+    @user&.present? && (@user == @target_user || @user.admin? || @user.super_admin?)
+  end
+
+  def destroy?
+    @user && (@user.super_admin? || (@user.admin? && @user != @target_user))
+  end
+
+  def show_profile?
+    @user.present? && (@user == @target_user || @user.admin? || @user.super_admin?)
+  end
+
+  def update_profile?
+    @user.present? && (@user == @target_user || @user.admin? || @user.super_admin?)
   end
 
   def favorites?
-    user.present?
+    @user.present?
   end
 
   def toggle_favorite?
-    user.present?
-  end
-  
-  def destroy?
-    user.super_admin? || (user.admin? && !user.eql?(record))
+    @user.present?
   end
 
   class Scope < Scope
     def resolve
-      if user.super_admin?
+      if @user&.super_admin?
         scope.all
-      elsif user.admin?
-        scope.where(id: user.id)
+      elsif @user&.admin?
+        scope.where.not(role: 'super_admin')
       else
-        scope.where(id: user.id)
+        scope.where(id: @user&.id)
       end
     end
   end

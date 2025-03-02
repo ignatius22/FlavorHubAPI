@@ -1,33 +1,67 @@
 # app/models/order_item.rb
 class OrderItem < ApplicationRecord
-  # Associations
-  belongs_to :order
+  # == Constants ==
+  DEFAULT_PRICE = 0.0.freeze
+
+  # == Associations ==
+  belongs_to :order, inverse_of: :order_items
   belongs_to :product
+  has_many :order_item_extras, dependent: :destroy
 
-  # Validations
-  validates :quantity, presence: true, 
-                      numericality: { only_integer: true, greater_than: 0 }
-  validates :price, presence: true, 
-                    numericality: { greater_than_or_equal_to: 0 }
-  validates :total, numericality: { greater_than_or_equal_to: 0 }, 
-                    on: :update # Only validate total after calculation
+  # == Validations ==
+  validates :quantity,
+            presence: true,
+            numericality: { only_integer: true, greater_than: 0 }
+  validates :price,
+            presence: true,
+            numericality: { greater_than_or_equal_to: 0 }
+  validates :total,
+            numericality: { greater_than_or_equal_to: 0 },
+            allow_nil: true,
+            on: :update
 
-  # Callbacks
+  # == Callbacks ==
+  before_validation :set_default_price, on: :create
   before_save :calculate_total
 
-  # Instance Methods
+  # == Scopes ==
+  scope :by_product, ->(product) { where(product: product) }
+  scope :expensive, ->(threshold = 100) { where("price >= ?", threshold) }
+
+  # == Instance Methods ==
+  # Returns the product's unit price or a default if unavailable
   def unit_price
-    product&.price || 0
+    product&.price || DEFAULT_PRICE
+  end
+
+  # Recalculates and persists the total
+  def recalculate_total!
+    calculate_total
+    save!
+  rescue StandardError => e
+    Rails.logger.error "Failed to recalculate total for OrderItem ##{id}: #{e.message}"
+    false
+  end
+
+  # Checks if this item contributes significantly to order total
+  def significant?(threshold_percentage = 0.5)
+    return false unless order&.total_price&.positive?
+    (total.to_f / order.total_price) >= threshold_percentage
   end
 
   private
 
-  # Calculates the total cost based on quantity and unit price
+  # == Private Methods ==
+  # Sets price from product if not specified
+  def set_default_price
+    self.price ||= unit_price
+  end
+
+  # Calculates total based on price and quantity
   def calculate_total
-    self.price ||= unit_price # Default to product price if not set
-    self.total = (price * quantity).round(2) # Round to 2 decimal places for currency
+    self.total = (price * quantity).round(2)
   rescue StandardError => e
-    Rails.logger.error "Error calculating total for OrderItem ##{id || 'new'}: #{e.message}"
-    self.total = 0 # Fallback to avoid breaking save
+    Rails.logger.error "Total calculation failed for OrderItem ##{id || 'new'}: #{e.message}"
+    self.total = DEFAULT_PRICE
   end
 end

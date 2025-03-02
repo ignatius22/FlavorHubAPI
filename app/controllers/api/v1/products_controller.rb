@@ -1,9 +1,9 @@
 module Api
   module V1
       class ProductsController < ApplicationController
-        before_action :check_login, only: [:create, :update, :destroy]
-        before_action :set_product, only: [:show, :update, :destroy, :toggle_favorite]
-        before_action :authorize_product!, only: [:create, :update, :destroy]
+        before_action :check_login, only: [:create, :update, :archive]  # Updated destroy to archive
+        before_action :set_product, only: [:show, :update, :archive, :unarchive, :delete_permanently, :toggle_favorite]
+        before_action :authorize_product!, only: [:create, :update, :archive]  # Updated destroy to archive
         
 
         def index
@@ -26,7 +26,7 @@ module Api
 
         def create
           @product = Product.new(permitted_params)
-          authorize @product # Pundit authorization
+          authorize @product
 
           result = CreateProductService.call(
             product_params: permitted_params,
@@ -50,15 +50,37 @@ module Api
           end
         end
 
-        def destroy
-          @product.update(status: 'archived')
-          render json: { message: "Product archived successfully" }, status: :ok
+        def archive
+          if @product.update(status: 'archived')
+            render json: { message: "Product archived successfully" }, status: :ok
+          else
+            render_error(@product.errors.full_messages, :unprocessable_entity)
+          end
+        end
+
+        def unarchive
+          if @product.status == 'archived'
+            @product.update(status: 'active')
+            render json: { message: "Product unarchived successfully" }, status: :ok
+          else
+            render_error("Product is not archived", :unprocessable_entity)
+          end
+        end
+
+        def delete_permanently
+          if @product.destroy
+            render json: { message: "Product permanently deleted" }, status: :no_content
+          else
+            render_error(@product.errors.full_messages, :unprocessable_entity)
+          end
         end
 
         private
 
         def set_product
-          @product = Product.find(params[:id])
+          @product = Product.includes(:product_extras).find(params[:id])
+        rescue ActiveRecord::RecordNotFound
+          render_error("Product not found", :not_found)
         end
 
         def permitted_params

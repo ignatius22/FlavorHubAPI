@@ -1,23 +1,27 @@
-class UpdateUserService < ApplicationService
-  def initialize(current_user, user, user_params)
+# app/services/update_user_service.rb
+class UpdateUserService
+  Result = Struct.new(:success?, :user, :errors, keyword_init: true)
+
+  def self.call(current_user, target_user, params)
+    new(current_user, target_user, params).call
+  end
+
+  def initialize(current_user, target_user, params)
     @current_user = current_user
-    @user = user
-    @user_params = user_params
+    @target_user = target_user
+    @params = params
   end
 
   def call
-    return OpenStruct.new(success?: false, errors: ["You are not authorized to update this user"]) unless authorized?
-
-    if @user.update(@user_params)
-      OpenStruct.new(success?: true, user: @user)
+    @target_user.instance_variable_set(:@current_user, @current_user) # Pass current_user to the model
+    if @target_user.update(@params)
+      Result.new(success?: true, user: @target_user, errors: [])
     else
-      OpenStruct.new(success?: false, errors: @user.errors.full_messages)
+      Result.new(success?: false, user: @target_user, errors: @target_user.errors.full_messages)
     end
-  end
-
-  private
-
-  def authorized?
-    @current_user.super_admin? || (@current_user.admin? && @user != @current_user)
+  rescue ActiveRecord::RecordInvalid => e
+    Result.new(success?: false, user: @target_user, errors: [e.message])
+  rescue StandardError => e
+    Result.new(success?: false, user: @target_user, errors: ["An unexpected error occurred"])
   end
 end
