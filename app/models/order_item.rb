@@ -1,4 +1,3 @@
-# app/models/order_item.rb
 class OrderItem < ApplicationRecord
   # == Constants ==
   DEFAULT_PRICE = 0.0.freeze
@@ -23,6 +22,7 @@ class OrderItem < ApplicationRecord
   # == Callbacks ==
   before_validation :set_default_price, on: :create
   before_save :calculate_total
+  accepts_nested_attributes_for :order_item_extras, allow_destroy: true  # Add this
 
   # == Scopes ==
   scope :by_product, ->(product) { where(product: product) }

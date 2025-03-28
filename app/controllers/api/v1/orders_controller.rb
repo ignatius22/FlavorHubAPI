@@ -16,9 +16,8 @@ module Api
         end
   
         def create
-          service = Orders::CreateService.new(current_user, params)
+          service = Orders::CreateService.new(current_user, order_params)
           @order = service.execute
-  
           if @order
             authorize @order
             render_success(@order, :created)
@@ -62,6 +61,32 @@ module Api
           render_error("Order not found", :not_found)
         end
   
+        def order_params
+          puts "Raw params: #{params.inspect}"
+          # Transform order_items to order_items_attributes with extras
+          if params[:order_items]
+            params[:order_items_attributes] = params.delete(:order_items).map do |item|
+              {
+                product_id: item[:product_id],
+                quantity: item[:quantity],
+                order_item_extras_attributes: item[:extras]  # Map extras directly
+              }
+            end
+          end
+          permitted = params.permit(
+            :total_price,
+            :status,
+            order_items_attributes: [
+              :product_id,
+              :quantity,
+              :price,
+              { order_item_extras_attributes: [:product_extra_id, :quantity] }
+            ]
+          )
+          puts "Permitted params: #{permitted.inspect}"
+          permitted
+        end
+
         def render_success(resource, status = :ok)
           render json: OrderSerializer.new(resource, include: [:user, "order_items.order_item_extras"]).serializable_hash, status: status
         end

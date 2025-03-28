@@ -38,3 +38,9 @@
 2025-03-02 22:45:24.113 WAT [16548] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.407 s, sync=0.002 s, total=0.415 s; sync files=5, longest=0.001 s, average=0.001 s; distance=6 kB, estimate=1783 kB
 2025-03-02 22:50:23.119 WAT [16548] LOG:  checkpoint starting: time
 2025-03-02 22:50:23.634 WAT [16548] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.507 s, sync=0.002 s, total=0.515 s; sync files=6, longest=0.001 s, average=0.001 s; distance=6 kB, estimate=1605 kB
+2025-03-10 14:44:44.133 WAT [16547] LOG:  received smart shutdown request
+2025-03-10 14:44:44.137 WAT [16547] LOG:  background worker "logical replication launcher" (PID 16553) exited with exit code 1
+2025-03-10 14:44:44.138 WAT [16548] LOG:  shutting down
+2025-03-10 14:44:44.140 WAT [16548] LOG:  checkpoint starting: shutdown immediate
+2025-03-10 14:44:44.159 WAT [16548] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.012 s, sync=0.002 s, total=0.020 s; sync files=4, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=1445 kB
+2025-03-10 14:44:44.169 WAT [16547] LOG:  database system is shut down

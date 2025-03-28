@@ -30,6 +30,12 @@ class Order < ApplicationRecord
 
   # == Callbacks ==
   before_save :calculate_total_price, if: :should_recalculate_total?
+  accepts_nested_attributes_for :order_items, allow_destroy: true  # Add this
+
+  # Debug callback
+  before_validation do
+    puts "Status before validation: #{status}"
+  end
 
   # == Scopes ==
   scope :active, -> { where.not(status: :cancelled) }
